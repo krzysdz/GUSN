@@ -1,0 +1,6 @@
+tensorflow
+tensorflow_model_optimization
+tf_keras
+ipykernel
+# ai-edge-litert # Not available on windows
+torch

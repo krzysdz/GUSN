@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="net_test_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="\$unit_adder_tree3_sv_2203167364 " />
+            <top_module name="glbl" />
+            <top_module name="net_test" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="53,623.708 ns"></ZoomStartTime>
+      <ZoomEndTime time="53,661.259 ns"></ZoomEndTime>
+      <Cursor1Time time="53,655.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="172"></NameColumnWidth>
+      <ValueColumnWidth column_width="108"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="24" />
+   <wvobject fp_name="/net_test/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/image" type="array">
+      <obj_property name="ElementShortName">image[0:783][7:0]</obj_property>
+      <obj_property name="ObjectShortName">image[0:783][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/start" type="logic">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/prepare_write" type="logic">
+      <obj_property name="ElementShortName">prepare_write</obj_property>
+      <obj_property name="ObjectShortName">prepare_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/we" type="logic">
+      <obj_property name="ElementShortName">we</obj_property>
+      <obj_property name="ObjectShortName">we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/in_byte" type="array">
+      <obj_property name="ElementShortName">in_byte[7:0]</obj_property>
+      <obj_property name="ObjectShortName">in_byte[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/done" type="logic">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/result" type="array">
+      <obj_property name="ElementShortName">result[3:0]</obj_property>
+      <obj_property name="ObjectShortName">result[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/running" type="logic">
+      <obj_property name="ElementShortName">running</obj_property>
+      <obj_property name="ObjectShortName">running</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/inst_ptr" type="array">
+      <obj_property name="ElementShortName">inst_ptr[12:0]</obj_property>
+      <obj_property name="ObjectShortName">inst_ptr[12:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/instruction" type="array">
+      <obj_property name="ElementShortName">instruction</obj_property>
+      <obj_property name="ObjectShortName">instruction</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/net_test/i_net/instruction.mul_en" type="logic">
+         <obj_property name="ElementShortName">.mul_en</obj_property>
+         <obj_property name="ObjectShortName">.mul_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/instruction.mul_acc" type="logic">
+         <obj_property name="ElementShortName">.mul_acc</obj_property>
+         <obj_property name="ObjectShortName">.mul_acc</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/instruction.weights" type="array">
+         <obj_property name="ElementShortName">.weights[26:0][7:0]</obj_property>
+         <obj_property name="ObjectShortName">.weights[26:0][7:0]</obj_property>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[26]" type="array">
+            <obj_property name="ElementShortName">[26][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[26][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[25]" type="array">
+            <obj_property name="ElementShortName">[25][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[25][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[24]" type="array">
+            <obj_property name="ElementShortName">[24][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[24][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[23]" type="array">
+            <obj_property name="ElementShortName">[23][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[23][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[22]" type="array">
+            <obj_property name="ElementShortName">[22][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[22][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[21]" type="array">
+            <obj_property name="ElementShortName">[21][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[21][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[20]" type="array">
+            <obj_property name="ElementShortName">[20][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[20][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[19]" type="array">
+            <obj_property name="ElementShortName">[19][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[19][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[18]" type="array">
+            <obj_property name="ElementShortName">[18][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[18][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[17]" type="array">
+            <obj_property name="ElementShortName">[17][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[17][7:0]</obj_property>
+            <obj_property name="isExpanded"></obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[16]" type="array">
+            <obj_property name="ElementShortName">[16][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[16][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[15]" type="array">
+            <obj_property name="ElementShortName">[15][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[15][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[14]" type="array">
+            <obj_property name="ElementShortName">[14][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[14][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[13]" type="array">
+            <obj_property name="ElementShortName">[13][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[13][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[12]" type="array">
+            <obj_property name="ElementShortName">[12][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[12][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[11]" type="array">
+            <obj_property name="ElementShortName">[11][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[11][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[10]" type="array">
+            <obj_property name="ElementShortName">[10][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[10][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[9]" type="array">
+            <obj_property name="ElementShortName">[9][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[9][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[8]" type="array">
+            <obj_property name="ElementShortName">[8][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[8][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[7]" type="array">
+            <obj_property name="ElementShortName">[7][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[7][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[6]" type="array">
+            <obj_property name="ElementShortName">[6][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[6][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[5]" type="array">
+            <obj_property name="ElementShortName">[5][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[5][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[4]" type="array">
+            <obj_property name="ElementShortName">[4][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[4][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[3]" type="array">
+            <obj_property name="ElementShortName">[3][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[3][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[2]" type="array">
+            <obj_property name="ElementShortName">[2][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[2][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[1]" type="array">
+            <obj_property name="ElementShortName">[1][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[1][7:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.weights[0]" type="array">
+            <obj_property name="ElementShortName">[0][7:0]</obj_property>
+            <obj_property name="ObjectShortName">[0][7:0]</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/instruction.save_rptr" type="logic">
+         <obj_property name="ElementShortName">.save_rptr</obj_property>
+         <obj_property name="ObjectShortName">.save_rptr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/instruction.load_rptr" type="logic">
+         <obj_property name="ElementShortName">.load_rptr</obj_property>
+         <obj_property name="ObjectShortName">.load_rptr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/instruction.proc_inst" type="array">
+         <obj_property name="ElementShortName">.proc_inst[2:0]</obj_property>
+         <obj_property name="ObjectShortName">.proc_inst[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/instruction.proc_data" type="array">
+         <obj_property name="ElementShortName">.proc_data</obj_property>
+         <obj_property name="ObjectShortName">.proc_data</obj_property>
+         <wvobject fp_name="/net_test/i_net/instruction.proc_data._empty" type="array">
+            <obj_property name="ElementShortName">._empty[45:0]</obj_property>
+            <obj_property name="ObjectShortName">._empty[45:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.proc_data.scale_data" type="array">
+            <obj_property name="ElementShortName">.scale_data</obj_property>
+            <obj_property name="ObjectShortName">.scale_data</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.proc_data.shift_data" type="array">
+            <obj_property name="ElementShortName">.shift_data</obj_property>
+            <obj_property name="ObjectShortName">.shift_data</obj_property>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.shift_data._pad" type="array">
+               <obj_property name="ElementShortName">._pad[39:0]</obj_property>
+               <obj_property name="ObjectShortName">._pad[39:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.shift_data.shift" type="array">
+               <obj_property name="ElementShortName">.shift[5:0]</obj_property>
+               <obj_property name="ObjectShortName">.shift[5:0]</obj_property>
+               <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            </wvobject>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.proc_data.clamp_data" type="array">
+            <obj_property name="ElementShortName">.clamp_data</obj_property>
+            <obj_property name="ObjectShortName">.clamp_data</obj_property>
+            <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.clamp_data._pad" type="array">
+               <obj_property name="ElementShortName">._pad[29:0]</obj_property>
+               <obj_property name="ObjectShortName">._pad[29:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.clamp_data.min" type="array">
+               <obj_property name="ElementShortName">.min[7:0]</obj_property>
+               <obj_property name="ObjectShortName">.min[7:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.clamp_data.max" type="array">
+               <obj_property name="ElementShortName">.max[7:0]</obj_property>
+               <obj_property name="ObjectShortName">.max[7:0]</obj_property>
+               <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+            </wvobject>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.proc_data.write_data" type="array">
+            <obj_property name="ElementShortName">.write_data</obj_property>
+            <obj_property name="ObjectShortName">.write_data</obj_property>
+         </wvobject>
+         <wvobject fp_name="/net_test/i_net/instruction.proc_data.offset_data" type="array">
+            <obj_property name="ElementShortName">.offset_data</obj_property>
+            <obj_property name="ObjectShortName">.offset_data</obj_property>
+            <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.offset_data._pad" type="array">
+               <obj_property name="ElementShortName">._pad[37:0]</obj_property>
+               <obj_property name="ObjectShortName">._pad[37:0]</obj_property>
+            </wvobject>
+            <wvobject fp_name="/net_test/i_net/instruction.proc_data.offset_data.offset" type="array">
+               <obj_property name="ElementShortName">.offset[7:0]</obj_property>
+               <obj_property name="ObjectShortName">.offset[7:0]</obj_property>
+               <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+            </wvobject>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/mac_outs" type="array">
+      <obj_property name="ElementShortName">mac_outs[0:26][23:0]</obj_property>
+      <obj_property name="ObjectShortName">mac_outs[0:26][23:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      <wvobject fp_name="/net_test/i_net/mac_outs[0]" type="array">
+         <obj_property name="ElementShortName">[0][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[0][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[1]" type="array">
+         <obj_property name="ElementShortName">[1][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[1][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[2]" type="array">
+         <obj_property name="ElementShortName">[2][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[2][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[3]" type="array">
+         <obj_property name="ElementShortName">[3][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[3][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[4]" type="array">
+         <obj_property name="ElementShortName">[4][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[4][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[5]" type="array">
+         <obj_property name="ElementShortName">[5][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[5][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[6]" type="array">
+         <obj_property name="ElementShortName">[6][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[6][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[7]" type="array">
+         <obj_property name="ElementShortName">[7][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[7][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[8]" type="array">
+         <obj_property name="ElementShortName">[8][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[8][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[9]" type="array">
+         <obj_property name="ElementShortName">[9][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[9][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[10]" type="array">
+         <obj_property name="ElementShortName">[10][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[10][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[11]" type="array">
+         <obj_property name="ElementShortName">[11][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[11][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[12]" type="array">
+         <obj_property name="ElementShortName">[12][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[12][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[13]" type="array">
+         <obj_property name="ElementShortName">[13][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[13][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[14]" type="array">
+         <obj_property name="ElementShortName">[14][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[14][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[15]" type="array">
+         <obj_property name="ElementShortName">[15][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[15][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[16]" type="array">
+         <obj_property name="ElementShortName">[16][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[16][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[17]" type="array">
+         <obj_property name="ElementShortName">[17][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[17][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[18]" type="array">
+         <obj_property name="ElementShortName">[18][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[18][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[19]" type="array">
+         <obj_property name="ElementShortName">[19][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[19][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[20]" type="array">
+         <obj_property name="ElementShortName">[20][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[20][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[21]" type="array">
+         <obj_property name="ElementShortName">[21][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[21][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[22]" type="array">
+         <obj_property name="ElementShortName">[22][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[22][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[23]" type="array">
+         <obj_property name="ElementShortName">[23][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[23][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[24]" type="array">
+         <obj_property name="ElementShortName">[24][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[24][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[25]" type="array">
+         <obj_property name="ElementShortName">[25][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[25][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/net_test/i_net/mac_outs[26]" type="array">
+         <obj_property name="ElementShortName">[26][23:0]</obj_property>
+         <obj_property name="ObjectShortName">[26][23:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/mac_sum" type="array">
+      <obj_property name="ElementShortName">mac_sum[24:0]</obj_property>
+      <obj_property name="ObjectShortName">mac_sum[24:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/mem_data" type="array">
+      <obj_property name="ElementShortName">mem_data[26:0][7:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_data[26:0][7:0]</obj_property>
+      <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/mem_rptr" type="array">
+      <obj_property name="ElementShortName">mem_rptr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">mem_rptr[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/wdata" type="array">
+      <obj_property name="ElementShortName">wdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/we" type="logic">
+      <obj_property name="ElementShortName">we</obj_property>
+      <obj_property name="ObjectShortName">we</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/w_next_chunk" type="logic">
+      <obj_property name="ElementShortName">w_next_chunk</obj_property>
+      <obj_property name="ObjectShortName">w_next_chunk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/data" type="array">
+      <obj_property name="ElementShortName">data[0:34][215:0]</obj_property>
+      <obj_property name="ObjectShortName">data[0:34][215:0]</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/rp" type="array">
+      <obj_property name="ElementShortName">rp[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rp[5:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/rdata" type="array">
+      <obj_property name="ElementShortName">rdata[215:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[215:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/rp_load" type="logic">
+      <obj_property name="ElementShortName">rp_load</obj_property>
+      <obj_property name="ObjectShortName">rp_load</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/rp_inc" type="logic">
+      <obj_property name="ElementShortName">rp_inc</obj_property>
+      <obj_property name="ObjectShortName">rp_inc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/net_test/i_net/i_data_mem/rp_c" type="array">
+      <obj_property name="ElementShortName">rp_c[5:0]</obj_property>
+      <obj_property name="ObjectShortName">rp_c[5:0]</obj_property>
+   </wvobject>
+</wave_config>

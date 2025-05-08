@@ -1,0 +1,20 @@
+{
+	"cSpell.words": [
+		"bitstring",
+		"endgenerate",
+		"endmodule",
+		"flatbuffers",
+		"genvar",
+		"ifndef",
+		"mult",
+		"nonvec",
+		"posedge",
+		"Quant",
+		"rdata",
+		"readmemh",
+		"rptr",
+		"tflite",
+		"wdata"
+	],
+	"files.eol": "\n"
+}

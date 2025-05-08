@@ -1,0 +1,24 @@
+tensor 0 - input data (float32 array 28x28)
+tensor 1 - shape of flatten (784)
+tensor 2 - quantized input (int8 array 28x28, static_cast<int8>(input - 128))
+tensor 3 - bias for first layer (int32 array/list 128, range is [-32, 73], so int8 should be eough)
+tensor 4 - bias for second layer (int32 array/list 10, range is [0, 3], so int8 would be enough)
+tensor 5 - flattened quantized input (int8 array/list 784)
+tensor 6 - weights for first layer (int8 array 128x784)
+tensor 7 - first layer output (int8 array/list 128)
+tensor 8 - weights for second layer (int8 array 10x128)
+tensor 9 - second layer output (int8 array/list 10)
+tensor 10 - softmax(t9) (int8 array/list 10)
+tensor 11 - output (t10) as float
+
+t0(in) -> t2(quant) -> t5(flat) -> t7(dense+relu) -> t9(dense) -> t10(softmax) -> t11(dequant, out)
+
+ skip       skip         skip        w=t6, b=t3      w=t8, b=t4     use max?            skip
+
+If the last (second) layer uses linear activation tensor 10 from the above is thrown out, argmax(t9) gives the result
+
+FullyConnected is not a simple MAC/FMA - the result must be scaled (MultiplyByQuantizedMultiplier)
+https://blog.clika.io/understanding-the-tensorflow-lite-quantization-approach-part-i/
+
+
+multiplier = (input_scale * bias_scale) / output_scale; scales are quantization multipliers (e.g. "1" in "1 * (q + -128)")

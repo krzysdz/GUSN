@@ -1,0 +1,29 @@
+acc=38042
+output_multiplier=1714578666
+output_shift=-11
+
+- mul
+    acc*mul = 65226001611972
+    rounded half of doubled = round(38042*1714578666/2^31) = round(30373,2238765676) = 30373
+- shift div
+    round(30373 / 2^11) = round(14,8305664063) = 15
+
+output_offset=-128
+acc_scaled=15-128=-113
+
+shift is [31+31, 31-7] = [62, 24], we're not limited by constant 31 bit shift (ARM's VQRDMULH)
+38042*1714578666/2^(31+11)=14,8306757210 (i32/u31)
+38042*219466069293/2^(31+18)=14,8306757240 (u38)
+
+219466069293/2^22 = 52324,7884018421
+38042*52324/2^(31-22+18)=14,8304522634
+38042*52325/2^(31-22+18)=14,8307356983 (round quantized multiplier) (u16/i17)
+
+219466069293/2^23 = 26162,3942009211
+38042*26162/2^(31-23+18)=14,8304522634
+^^^This uses multiplier i16 (u15, really)
+   and shift in range [31-23+31, 31-23-7]=[39, 1] (why do I use inverted ranges?)
+   this 1 bit that is always shifted out, can be used for rounding
+   in the most extreme (+7) case
+
+   up to i18 is ok (for DSP48E1, SB_MAC16 as the name implies has limit to i16)
