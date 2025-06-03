@@ -44,7 +44,21 @@
             end
         end else begin : g_no_reg_in
             assign acc_src_c = acc ? result : 0;
-            always_ff @(posedge clk) if (en) result <= acc_src_c + ((a + c) * b);
+
+            // b == 0 check is for simulation only, to stop propagating X. Anything times 0 is 0, but in Verilog simulation x * 0 is x.
+            if (PREADDER_SUB) begin : g_preadder_subtracts
+`ifdef SIM_ONLY
+                always_ff @(posedge clk) if (en) result <= acc_src_c + (b == 0 ? 0 : ((a - c) * b));
+`else
+                always_ff @(posedge clk) if (en) result <= acc_src_c + ((a - c) * b);
+`endif
+            end else begin : g_preadder_adds
+`ifdef SIM_ONLY
+                always_ff @(posedge clk) if (en) result <= acc_src_c + (b == 0 ? 0 : ((a + c) * b));
+`else
+                always_ff @(posedge clk) if (en) result <= acc_src_c + ((a + c) * b);
+`endif
+            end
         end
     endgenerate
 endmodule

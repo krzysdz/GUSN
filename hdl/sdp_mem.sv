@@ -76,7 +76,7 @@ module sdp_mem #(
         if (rp_load) begin
             rp_c = rp_load_val;
         end else if (rp_inc) begin
-            rp_c = rp + 1;
+            rp_c = (rp == NUM_CHUNKS-1) ? 0 : rp + 1;
         end
     end
     always_ff @(posedge clk) begin
@@ -96,4 +96,14 @@ module sdp_mem #(
             rdata <= data[rp_c];
         end
     end
+
+`ifdef SIM_ONLY
+    logic [$clog2(READ_WIDTH_MUL+1)-1:0] byte_idx;
+    assign byte_idx = $clog2(wp_byte) + 1;
+    always_ff @(posedge clk) begin
+        if (we) begin
+            $display("[%0t] Writing chunk %0d (%0d/%0d): %0d", $time, wp_chunk, byte_idx, READ_WIDTH_MUL, $signed(wdata));
+        end
+    end
+`endif
 endmodule

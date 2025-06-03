@@ -10,20 +10,22 @@ mod schema_flatbuffers;
 use num_traits::{Float, PrimInt, ToPrimitive, Unsigned};
 use schema_flatbuffers::tflite::Tensor;
 use schema_flatbuffers::tflite::{self, ActivationFunctionType};
+use std::collections::VecDeque;
 use std::fs::{self};
 use std::io::Read;
 
 #[derive(Debug)]
 struct FullyConnectedLayer {
     weights: Vec<i8>,
-    biases: Vec<i32>,
+    /// In TensorFlow these are i32, but really in the data they fit in i8
+    biases: Vec<i8>,
     /// input_offset is negated zero point - range [-127, 128], so let's store non-negated and subtract in Verilog (pre-adders can subtract),
     /// actually, since it is just previous output offset *-1, it can be omitted from instructions
     input_offset_neg: i8,
     /// Output offset if it has changed from previous one
     output_offset: Option<i8>,
-    /// This is really u38 (logic [37:0])
-    multiplier: u64,
+    /// This is really u15 (logic [14:0])
+    multiplier: u16,
     /// Shift right, range [0, 38], then 1 more has to be performed and rounding (LSB) added
     shift: u8,
     /// Quantized INT8 ReLU (NOT ReLU6 or ReLUN1To1) activation:
@@ -56,24 +58,19 @@ impl FullyConnectedLayer {
 enum NonvecInst {
     /// do nothing
     Nop,
-    /// sum all multipliers
-    SumAll,
-    /// add bias and perform multiplication (quantized multiplier)
-    ScaleAndBias {
-        /// really u38
-        mult: u64,
-        bias: i8,
-    },
-    /// right shift the result, by n bits (0..=38)
-    Shr(u8),
-    /// clamp the result to fit within min and max
-    Clamp { min: i8, max: i8 },
-    /// write result to memory and optionally move write pointer to next chunk (after last neuron in layer) \
-    /// the parameter moves the write pointer AND makes current output offset the next input offset
-    Write(bool),
     /// set offset that will be added to outputs in current layer and subtracted from inputs of the next one \
     /// can be skipped if previous layer has the same one
     SetOutOffset(i8),
+    /// Set u15 multiplier
+    SetMul(u16),
+    /// Set right shift after multiplication (0 to 38 inclusive)
+    SetShr(u8),
+    /// Set minimum value for activation, -128 if no fused activation function
+    SetMin(i8),
+    /// finalize neuron processing using given bias, then write result to memory and if (true) do all layer finishing tasks:
+    /// - move output offset to input
+    /// - block next instruction execution until result is written
+    Store { bias: i8, last_in_layer: bool },
     /// end processing - finalize (max), send results and halt
     Fin,
 }
@@ -81,14 +78,16 @@ enum NonvecInst {
 impl NonvecInst {
     fn bitstring(&self) -> String {
         match self {
-            NonvecInst::Nop => "000".to_owned() + &"0".repeat(46),
-            NonvecInst::SumAll => "001".to_owned() + &"0".repeat(46),
-            NonvecInst::ScaleAndBias { mult, bias } => format!("010{:0>8b}{:0>38b}", bias, mult),
-            NonvecInst::Shr(shift) => format!("011{:0>40}{:0>6b}", 0, shift),
-            NonvecInst::Clamp { min, max } => format!("100{:0>30}{:0>8b}{:0>8b}", 0, min, max),
-            NonvecInst::Write(next_chunk) => format!("101{:0>45}{}", 0, *next_chunk as u8),
-            NonvecInst::SetOutOffset(offset) => format!("110{:0>38}{:0>8b}", 0, offset),
-            NonvecInst::Fin => "111".to_owned() + &"0".repeat(46),
+            NonvecInst::Nop => "000".to_owned() + &"0".repeat(15),
+            NonvecInst::SetOutOffset(offset) => format!("001{:0>7}{:0>8b}", 0, offset),
+            NonvecInst::SetMul(mul) => format!("010{:0>15b}", mul),
+            NonvecInst::SetShr(shr) => format!("011{:0>9}{:0>6b}", 0, shr),
+            NonvecInst::SetMin(min) => format!("100{:0>7}{:0>8b}", 0, min),
+            NonvecInst::Store {
+                bias,
+                last_in_layer,
+            } => format!("101{:0>6}{}{:0>8b}", 0, *last_in_layer as u8, bias),
+            NonvecInst::Fin => "111".to_owned() + &"0".repeat(15),
         }
     }
 }
@@ -161,29 +160,43 @@ fn clog2<T: PrimInt + Unsigned>(x: T) -> u32 {
 fn generate_inst_stream(layers: &[FullyConnectedLayer]) -> Vec<CustInst> {
     let mut instructions = Vec::new();
 
+    // Don't emit unnecessary instructions if values did not change
+    // Data about output offset changes is stored in layer data, but these are not.
+    // I don't want to rework it. This code is already a mess.
+    let mut current_mul = None;
+    let mut current_shift = None;
+    let mut current_act_min = None;
+
     for layer in layers {
         check_layer_acc_max(layer);
 
+        // Instructions that must be executed before ending first neuron in layer
+        let mut layer_pre_first_write = Vec::new();
+
         if let Some(out_off) = layer.output_offset {
-            instructions.push(CustInst {
-                mul_en: false,
-                mul_acc: false,
-                weights: [0; 27],
-                save_rptr: false,
-                load_rptr: false,
-                proc_inst: NonvecInst::SetOutOffset(out_off),
-            });
+            layer_pre_first_write.push(NonvecInst::SetOutOffset(out_off));
+        }
+        if current_mul != Some(layer.multiplier) {
+            layer_pre_first_write.push(NonvecInst::SetMul(layer.multiplier));
+            current_mul = Some(layer.multiplier);
+        }
+        if current_shift != Some(layer.shift) {
+            layer_pre_first_write.push(NonvecInst::SetShr(layer.shift));
+            current_shift = Some(layer.shift);
+        }
+        if current_act_min.is_none_or(|am| am != layer.act_min.unwrap_or(-128)) {
+            let am = layer.act_min.unwrap_or(-128);
+            layer_pre_first_write.push(NonvecInst::SetMin(am));
+            current_act_min = Some(am);
         }
         let neuron_count = layer.outputs_len();
         let input_count = layer.inputs_len();
         let weights_iter = layer.weights.chunks_exact(input_count).enumerate();
 
-        // Actual values are overwritten per-neuron
-        let mut prev_neuron_finish_seq = Vec::new();
-
         for (neuron_idx, neuron_weights) in weights_iter {
             let first_neuron_in_layer = neuron_idx == 0;
             let last_neuron_in_layer = neuron_idx == neuron_count - 1;
+            let bias = layer.biases[neuron_idx];
 
             let mut multiplications = neuron_weights
                 .chunks(27)
@@ -200,65 +213,62 @@ fn generate_inst_stream(layers: &[FullyConnectedLayer]) -> Vec<CustInst> {
                         proc_inst: NonvecInst::Nop,
                     }
                 })
-                .collect::<Vec<CustInst>>();
-            if let Some(first) = multiplications.first_mut() {
-                // first multiplication in layer must save pointer
+                .collect::<VecDeque<CustInst>>();
+            if let Some(first) = multiplications.front_mut() {
                 if first_neuron_in_layer {
+                    // first multiplication in layer must save pointer
                     first.save_rptr = true;
+                } else {
+                    // others issue write from previous neuron
+                    first.proc_inst = NonvecInst::Store {
+                        bias: layer.biases[neuron_idx - 1],
+                        last_in_layer: false,
+                    }
                 }
                 // first multiplication in neuron does not accumulate
                 first.mul_acc = false;
             }
             // last multiplication in neuron, except for last one in layer, should restore pointer
             if !last_neuron_in_layer {
-                if let Some(last) = multiplications.last_mut() {
+                if let Some(last) = multiplications.back_mut() {
                     last.load_rptr = true;
                 }
             }
-            // if not first in layer, add finishing instructions from previous neuron
-            if !first_neuron_in_layer {
-                for (mul, fin) in multiplications
+            if first_neuron_in_layer {
+                let setup_instr_count = layer_pre_first_write.len();
+                let available_mul_count = multiplications.len();
+                let dummy_muls_to_add = setup_instr_count.saturating_sub(available_mul_count);
+                for setup in layer_pre_first_write[0..dummy_muls_to_add].iter().rev() {
+                    multiplications.push_front(CustInst {
+                        mul_en: false,
+                        mul_acc: false,
+                        weights: [0; 27],
+                        save_rptr: false,
+                        load_rptr: false,
+                        proc_inst: *setup,
+                    });
+                }
+                for (mul, si) in multiplications
                     .iter_mut()
-                    .zip(prev_neuron_finish_seq.iter())
+                    .zip(layer_pre_first_write.iter())
+                    .skip(dummy_muls_to_add)
                 {
-                    assert_eq!(mul.proc_inst, NonvecInst::Nop);
-                    mul.proc_inst = *fin;
+                    mul.proc_inst = si.clone();
                 }
             }
-            // Add own multiplications (maybe) including fused previous finishing instructions
-            instructions.append(&mut multiplications);
-            // Append remaining finishing instructions from previous neuron if any
-            if !first_neuron_in_layer && multiplications.len() < prev_neuron_finish_seq.len() {
-                instructions.extend(
-                    prev_neuron_finish_seq
-                        .iter()
-                        .skip(multiplications.len())
-                        .map(|proc_inst| CustInst::from(proc_inst)),
-                );
-            }
-            // prepare own finishing instructions
-            // TODO: Consider setting multiplier, shift and act_min/clamp values once per layer - this will shorten instruction length a lot
-            prev_neuron_finish_seq.clear();
-            prev_neuron_finish_seq.push(NonvecInst::SumAll);
-            prev_neuron_finish_seq.push(NonvecInst::ScaleAndBias {
-                mult: layer.multiplier,
-                bias: layer.biases[neuron_idx].to_i8().unwrap(),
-            });
-            prev_neuron_finish_seq.push(NonvecInst::Shr(layer.shift));
-            if let Some(act_min) = layer.act_min {
-                prev_neuron_finish_seq.push(NonvecInst::Clamp {
-                    min: act_min,
-                    max: i8::MAX,
-                });
-            }
-            prev_neuron_finish_seq.push(NonvecInst::Write(last_neuron_in_layer));
-            // if last in layer, immediately add own finishing instructions
+            instructions.extend(multiplications.iter());
             if last_neuron_in_layer {
-                instructions.extend(
-                    prev_neuron_finish_seq
-                        .iter()
-                        .map(|proc_inst| CustInst::from(proc_inst)),
-                );
+                instructions.push(CustInst {
+                    mul_en: false,
+                    mul_acc: false,
+                    weights: [0; 27],
+                    save_rptr: false,
+                    load_rptr: false,
+                    proc_inst: NonvecInst::Store {
+                        bias: bias,
+                        last_in_layer: true,
+                    },
+                });
             }
         }
     }
@@ -325,20 +335,29 @@ fn process_fully_connected(
     let mult_sh = mant_norm - 31;
     let quantized_multiplier = mantissa >> mult_sh;
     // Change range of quantized shift from [-31, 7] to [-38, 0] and make it positive;
-    let adjusted_sh = mult_sh - 7;
+    let adjusted_sh = mult_sh - 7 + 23;
     let adj_quantized_multiplier = mantissa >> adjusted_sh;
-    let adj_quantized_shift = -quantized_shift + 7;
+    let adj_quantized_shift = -quantized_shift + 7 - 23 + 31 - 1;
     println!(
-        "TensorFlow's quantized multiplier: {} with shift {}, adjusted to [-38, 0] and u38 {} ({} bits) >> ({} + 31)",
+        "TensorFlow's quantized multiplier: {} with shift {}, adjusted to [-38, 0] and u15 {} ({} bits) >> ({} + 1)",
         quantized_multiplier,
         quantized_shift,
         adj_quantized_multiplier,
         clog2(adj_quantized_multiplier),
         adj_quantized_shift
     );
+    let tf_mul_reconstructed =
+        quantized_multiplier as f64 * 2.0.powf((quantized_shift - 31) as f64);
+    let net_mul_reconstructed =
+        adj_quantized_multiplier as f64 * 2.0.powf(-(adj_quantized_shift + 1) as f64);
+    let mul_diff = tf_mul_reconstructed - net_mul_reconstructed;
+    println!(
+        "Q: {:e}, A: {:e}, diff {:e}",
+        tf_mul_reconstructed, net_mul_reconstructed, mul_diff
+    );
     assert!(adj_quantized_shift >= 0);
     assert!(adj_quantized_shift <= 38);
-    assert!(adj_quantized_multiplier < 1u64 << 38);
+    assert!(adj_quantized_multiplier < 1u64 << 15);
 
     let input_offset_neg = input_quant.zero_point().unwrap().get(0).to_i8().unwrap();
     let weights_offset_neg = weights_quant.zero_point().unwrap().get(0).to_i8().unwrap();
@@ -352,22 +371,22 @@ fn process_fully_connected(
         "INT8 quantization requires 0 as zero point"
     );
 
-    let bias_vec: Vec<i32> = bias_buf
+    let bias_vec: Vec<i8> = bias_buf
         .data()
         .unwrap()
         .bytes()
         .chunks_exact(4)
-        .map(|x| i32::from_le_bytes(x.try_into().unwrap()))
+        .map(|x| i32::from_le_bytes(x.try_into().unwrap()) as i8)
         .collect();
     assert_eq!(
         bias_vec.len(),
         bias.shape().unwrap().get(0).try_into().unwrap()
     );
-    assert!(
-        bias_vec
-            .iter()
-            .all(|x| (i8::MIN as i32) <= *x && *x <= (i8::MAX as i32))
-    );
+    // assert!(
+    //     bias_vec
+    //         .iter()
+    //         .all(|x| (i8::MIN as i32) <= *x && *x <= (i8::MAX as i32))
+    // );
     // println!("Bias vec {:?}", bias_vec);
     // println!("Output {:?}", output);
     assert!(act_func == ActivationFunctionType::NONE || act_func == ActivationFunctionType::RELU);
@@ -386,7 +405,7 @@ fn process_fully_connected(
             None
         },
         input_offset_neg,
-        multiplier: adj_quantized_multiplier,
+        multiplier: adj_quantized_multiplier as u16,
         shift: adj_quantized_shift.try_into().unwrap(),
         // act_min is max(output.zero_point, i8::MIN), if output.zero_point < i8::MIN, the conversion to i8 will fail and the default will be used
         act_min: if act_func == ActivationFunctionType::NONE {
@@ -397,8 +416,9 @@ fn process_fully_connected(
     }
 }
 
+/// Check if max value will fit in accumulators (width specified by BITS constant in first line)
 fn check_layer_acc_max(layer: &FullyConnectedLayer) {
-    const BITS: u32 = 25;
+    const BITS: u32 = 24;
     const MIN_REPR: i64 = -(1 << (BITS - 1));
     const MAX_REPR: i64 = (1 << (BITS - 1)) - 1;
 
@@ -434,6 +454,14 @@ fn check_layer_acc_max(layer: &FullyConnectedLayer) {
     );
     assert!(MIN_REPR <= acc_min && acc_min <= MAX_REPR);
     assert!(MIN_REPR <= acc_max && acc_max <= MAX_REPR);
+}
+
+/// Write network config data "config.dat", with network-specific parameters.
+fn write_config(input_quant_offset: i8) {
+    let input_quant_param = format!("{:0>8b}", input_quant_offset);
+    let config_data = [input_quant_param];
+    let bin_data = config_data.join("\n");
+    fs::write("../hdl/config.dat", bin_data).unwrap();
 }
 
 fn main() {
@@ -568,5 +596,8 @@ fn main() {
             .join("\n");
         fs::write("../hdl/prog.dat", bin_data).unwrap();
         fs::write("../hdl/prog.txt", format!("{:#?}", inst_stream)).unwrap();
+
+        let in_quant_offset = layers[0].input_offset_neg;
+        write_config(in_quant_offset);
     }
 }

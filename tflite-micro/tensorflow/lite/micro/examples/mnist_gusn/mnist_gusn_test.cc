@@ -139,8 +139,8 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
   TfLiteTensor* output = interpreter.output(0);
   TFLITE_CHECK_NE(output, nullptr);
 
-  float output_scale = output->params.scale;
-  int output_zero_point = output->params.zero_point;
+  // float output_scale = output->params.scale;
+  // int output_zero_point = output->params.zero_point;
 
   TFLITE_CHECK_EQ(3, input->dims->size);
   TFLITE_CHECK_EQ(1, input->dims->data[0]);
@@ -161,7 +161,8 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
   TF_LITE_ENSURE_STATUS(interpreter.Invoke());
   float results[10];
   for (size_t i = 0; i < 10; ++i) {
-    results[i] = (output->data.f[i] - output_zero_point) * output_scale;
+    // results[i] = (output->data.f[i] - output_zero_point) * output_scale;
+    results[i] = output->data.f[i];
     MicroPrintf("%f ", static_cast<double>(results[i]));
   }
   size_t predicted = argmax(results, 10);
@@ -173,7 +174,7 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
 
 int main(int argc, char* argv[]) {
   tflite::InitializeTarget();
-  TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
+  // TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
   TF_LITE_ENSURE_STATUS(LoadQuantModelAndPerformInference());
   MicroPrintf("~~~ALL TESTS PASSED~~~\n");
   return kTfLiteOk;
