@@ -17,8 +17,15 @@
     input logic acc,
     output logic signed [O_WIDTH-1:0] result
 );
+    // Internal signals (registered or not)
+    logic                      s_en;
+    logic signed [A_WIDTH-1:0] s_a;
+    logic signed [B_WIDTH-1:0] s_b;
+    logic signed [C_WIDTH-1:0] s_c;
+    logic                      s_acc;
     // Choose between accumulate and just multiplication result. Quartus requires it to be a separate wire.
     logic signed [O_WIDTH-1:0] acc_src_c;
+    assign acc_src_c = s_acc ? result : 0;
 
     generate
         if (REGISTER_INPUTS) begin : g_reg_in
@@ -27,7 +34,12 @@
             logic signed [B_WIDTH-1:0] b_r;
             logic signed [C_WIDTH-1:0] c_r;
             logic                      acc_r;
-            assign acc_src_c = acc_r ? result : 0;
+
+            assign s_en = en_r;
+            assign s_a = a_r;
+            assign s_b = b_r;
+            assign s_c = c_r;
+            assign s_acc = acc_r;
 
             always_ff @(posedge clk) begin
                 en_r <= en;
@@ -35,30 +47,27 @@
                 b_r <= b;
                 c_r <= c;
                 acc_r <= acc;
-                if (en_r) begin
-                    if (PREADDER_SUB)
-                        result <= acc_src_c + ((a_r - c_r) * b_r);
-                    else
-                        result <= acc_src_c + ((a_r + c_r) * b_r);
-                end
             end
         end else begin : g_no_reg_in
-            assign acc_src_c = acc ? result : 0;
-
-            // b == 0 check is for simulation only, to stop propagating X. Anything times 0 is 0, but in Verilog simulation x * 0 is x.
-            if (PREADDER_SUB) begin : g_preadder_subtracts
-`ifdef SIM_ONLY
-                always_ff @(posedge clk) if (en) result <= acc_src_c + (b == 0 ? 0 : ((a - c) * b));
-`else
-                always_ff @(posedge clk) if (en) result <= acc_src_c + ((a - c) * b);
-`endif
-            end else begin : g_preadder_adds
-`ifdef SIM_ONLY
-                always_ff @(posedge clk) if (en) result <= acc_src_c + (b == 0 ? 0 : ((a + c) * b));
-`else
-                always_ff @(posedge clk) if (en) result <= acc_src_c + ((a + c) * b);
-`endif
-            end
+            assign s_en = en;
+            assign s_a = a;
+            assign s_b = b;
+            assign s_c = c;
+            assign s_acc = acc;
         end
     endgenerate
+
+    always_ff @(posedge clk) begin
+        if (s_en) begin
+            if (PREADDER_SUB) begin : g_preadder_subtracts
+                result <= acc_src_c + ((s_a - s_c) * s_b);
+            end else begin : g_preadder_adds
+                result <= acc_src_c + ((s_a + s_c) * s_b);
+            end
+`ifdef SIM_ONLY
+            // b == 0 check is for simulation only, to stop propagating X. Anything times 0 is 0, but in Verilog simulation x * 0 is x.
+            if (s_b == 0) result <= acc_src_c;
+`endif
+        end
+    end
 endmodule
