@@ -10,7 +10,8 @@ module max_idx10 #(
     output logic [3:0] idx,
     output logic done
 );
-    typedef enum logic[1:0] {
+    typedef enum logic[2:0] {
+        S0_REG_IN,
         S1_FIRST4,
         S2_INTERMEDIATE,
         S3_LAST_IN_AND_IM_R,
@@ -18,7 +19,8 @@ module max_idx10 #(
     } max_idx_state_t;
 
     max_idx_state_t state;
-    logic signed [WIDTH-1:0] tmp_results[7];
+    logic signed [WIDTH-1:0] inputs_r[10];
+    logic signed [WIDTH-1:0] tmp_results[4];
     logic [3:0] tmp_idx[4];
     // 1st cmp
     logic signed [WIDTH-1:0] in1_a_n;
@@ -43,6 +45,10 @@ module max_idx10 #(
     logic signed [3:0] out3_d;
 
     always_comb begin
+        in1_a_n = 0;
+        in1_a_d = 0;
+        in1_b_n = 0;
+        in1_b_d = 0;
         in2_a_n = 0;
         in2_a_d = 0;
         in2_b_n = 0;
@@ -53,17 +59,17 @@ module max_idx10 #(
         in3_b_d = 0;
         unique0 case (state)
             S1_FIRST4 : begin
-                in1_a_n = inputs[0];
+                in1_a_n = inputs_r[0];
                 in1_a_d = 4'd0;
-                in1_b_n = inputs[1];
+                in1_b_n = inputs_r[1];
                 in1_b_d = 4'd1;
-                in2_a_n = inputs[2];
+                in2_a_n = inputs_r[2];
                 in2_a_d = 4'd2;
-                in2_b_n = inputs[3];
+                in2_b_n = inputs_r[3];
                 in2_b_d = 4'd3;
-                in3_a_n = inputs[4];
+                in3_a_n = inputs_r[4];
                 in3_a_d = 4'd4;
-                in3_b_n = inputs[5];
+                in3_b_n = inputs_r[5];
                 in3_b_d = 4'd5;
             end
             S2_INTERMEDIATE : begin
@@ -71,13 +77,13 @@ module max_idx10 #(
                 in1_a_d = tmp_idx[0];
                 in1_b_n = tmp_results[1];
                 in1_b_d = tmp_idx[1];
-                in2_a_n = tmp_results[3];
+                in2_a_n = inputs_r[6];
                 in2_a_d = 4'd6;
-                in2_b_n = tmp_results[4];
+                in2_b_n = inputs_r[7];
                 in2_b_d = 4'd7;
-                in3_a_n = tmp_results[5];
+                in3_a_n = inputs_r[8];
                 in3_a_d = 4'd8;
-                in3_b_n = tmp_results[6];
+                in3_b_n = inputs_r[9];
                 in3_b_d = 4'd9;
             end
             S3_LAST_IN_AND_IM_R : begin
@@ -101,25 +107,25 @@ module max_idx10 #(
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            state <= S1_FIRST4;
+            state <= S0_REG_IN;
             done <= 0;
         end else begin
             unique case (state)
-                S1_FIRST4: begin
+                S0_REG_IN: begin
                     if (start) begin
-                        state <= S2_INTERMEDIATE;
-                        done <= 0;
-                        tmp_results[0] <= out1_n;
-                        tmp_results[1] <= out2_n;
-                        tmp_results[2] <= out3_n;
-                        tmp_results[3] <= inputs[6];
-                        tmp_results[4] <= inputs[7];
-                        tmp_results[5] <= inputs[8];
-                        tmp_results[6] <= inputs[9];
-                        tmp_idx[0] <= out1_d;
-                        tmp_idx[1] <= out2_d;
-                        tmp_idx[2] <= out3_d;
+                        state <= S1_FIRST4;
+                        inputs_r <= inputs;
                     end
+                end
+                S1_FIRST4: begin
+                    state <= S2_INTERMEDIATE;
+                    done <= 0;
+                    tmp_results[0] <= out1_n;
+                    tmp_results[1] <= out2_n;
+                    tmp_results[2] <= out3_n;
+                    tmp_idx[0] <= out1_d;
+                    tmp_idx[1] <= out2_d;
+                    tmp_idx[2] <= out3_d;
                 end
                 S2_INTERMEDIATE : begin
                     state <= S3_LAST_IN_AND_IM_R;
@@ -138,10 +144,10 @@ module max_idx10 #(
                     tmp_idx[1] <= out2_d;
                 end
                 S4_RESULT : begin
-                    state <= S1_FIRST4;
+                    state <= S0_REG_IN;
                     done <= 1;
                 end
-                default: state <= S1_FIRST4;
+                default: state <= S0_REG_IN;
             endcase
         end
     end

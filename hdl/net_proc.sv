@@ -62,9 +62,9 @@ module net_proc #(
     logic signed [46:0] mul_w_off_rd;
     logic signed [46:0] mul_shifted;
     logic signed [7:0] activated;
-    logic signed [7:0] bias_ppl [3];
-    logic [6:0] is_write_ppl;
-    logic [6:0] last_in_layer_ppl;
+    logic signed [7:0] bias_ppl [4];
+    logic [7:0] is_write_ppl;
+    logic [7:0] last_in_layer_ppl;
 
     assign wait_wr = |last_in_layer_ppl;
 
@@ -109,20 +109,20 @@ module net_proc #(
             last_in_layer_ppl <= 0;
             in_offset_neg <= net_config::input_quant_offset;
         end else begin
-            is_write_ppl <= {is_write_ppl[5:0], instruction.proc_inst == STORE && !wait_wr};
-            last_in_layer_ppl <= {last_in_layer_ppl[5:0],
+            is_write_ppl <= {is_write_ppl[6:0], instruction.proc_inst == STORE && !wait_wr};
+            last_in_layer_ppl <= {last_in_layer_ppl[6:0],
                                 (instruction.proc_inst == STORE && !wait_wr && instruction.proc_data.st_d.last_in_layer)};
-            if (last_in_layer_ppl[6]) begin
+            if (last_in_layer_ppl[7]) begin
                 in_offset_neg <= out_offset;
             end
         end
-        for (int n = 2; n > 0; n--) bias_ppl[n] <= bias_ppl[n-1];
+        for (int n = 3; n > 0; n--) bias_ppl[n] <= bias_ppl[n-1];
         bias_ppl[0] <= instruction.proc_data.st_d.bias;
-        mul_no_shr <= (mac_sum + bias_ppl[2]) * $signed({1'b0, multiplier});
+        mul_no_shr <= (mac_sum + bias_ppl[3]) * $signed({1'b0, multiplier});
         mul_w_off_rd <= mul_no_shr + offset_rd;
         mul_shifted <= $signed(mul_w_off_rd[46:1]) >>> shift;
 `ifdef SIM_ONLY
-        if (is_write_ppl[5]) $display("Pre-act %0d", mul_shifted);
+        if (is_write_ppl[6]) $display("Pre-act %0d", mul_shifted);
 `endif
         activated <= mul_shifted > 8'sd127 ?
                         8'sd127 : (
@@ -140,8 +140,8 @@ module net_proc #(
         .clk(clk),
         .rst(ext_mem_rst),
         .wdata(ext_mem_we ? (ext_mem_wdata + net_config::input_quant_offset) : $unsigned(activated)),
-        .we(ext_mem_we | is_write_ppl[6]),
-        .w_next_chunk((~ext_mem_we & last_in_layer_ppl[6]) | start),
+        .we(ext_mem_we | is_write_ppl[7]),
+        .w_next_chunk((~ext_mem_we & last_in_layer_ppl[7]) | start),
         .rp_inc(instruction.mul_en && !wait_wr),
         .rp_load_val(saved_rptr),
         .rp_load(instruction.load_rptr),
@@ -153,7 +153,7 @@ module net_proc #(
         genvar i;
         for (i = 0; i < 27; ++i) begin : g_mac
             poor_mac #(
-                .REGISTER_INPUTS(0),
+                .REGISTER_INPUTS(1),
                 .O_WIDTH(SingleMacW),
                 .PREADDER_SUB(1)
             ) i_mac (
