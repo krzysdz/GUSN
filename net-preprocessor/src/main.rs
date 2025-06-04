@@ -456,12 +456,32 @@ fn check_layer_acc_max(layer: &FullyConnectedLayer) {
     assert!(MIN_REPR <= acc_max && acc_max <= MAX_REPR);
 }
 
-/// Write network config data "config.dat", with network-specific parameters.
+fn var_to_lines(dtype: &str, name: &str, value: &str, comment: Option<&str>) -> Vec<String> {
+    let var_line = format!("{} {} = {};", dtype, name, value);
+    match comment {
+        Some(c) => vec![format!("// {}", c), var_line],
+        None => vec![var_line],
+    }
+}
+
+/// Write network config data "net_config.svh", with network-specific parameters.
 fn write_config(input_quant_offset: i8) {
-    let input_quant_param = format!("{:0>8b}", input_quant_offset);
-    let config_data = [input_quant_param];
-    let bin_data = config_data.join("\n");
-    fs::write("../hdl/config.dat", bin_data).unwrap();
+    const PACKAGE_NAME: &'static str = "net_config";
+    const INDENT: &'static str = "    ";
+    let inner_lines = [var_to_lines(
+        "logic signed [7:0]",
+        "input_quant_offset",
+        &format!("8'b{:0>8b}", input_quant_offset),
+        Some("Quantization offset of NN inputs. Applied to incoming data and used in first layer."),
+    )];
+    let config_data = inner_lines
+        .iter()
+        .flatten()
+        .map(|l| format!("{}{}", INDENT, l))
+        .collect::<Vec<String>>()
+        .join("\n");
+    let config_package = format!("package {};\n{}\nendpackage\n", PACKAGE_NAME, config_data);
+    fs::write("../hdl/net_config.svh", config_package).unwrap();
 }
 
 fn main() {

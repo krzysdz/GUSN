@@ -1,4 +1,5 @@
 `include "datatypes.svh"
+`include "net_config.svh"
 
 module net_proc #(
     parameter int MUL_WIDTH = 27,
@@ -19,16 +20,11 @@ module net_proc #(
     localparam int MulW = 15; // this is width of unsigned
     localparam int PreShrW = AccAllW + MulW + 2; // 1, because mul will be signed; 1 for additions ovf
 
-    config_t conf_data_raw[1];
-    config_t conf;
-    initial $readmemb("config.dat", conf_data_raw);
-    assign conf = config_t'(conf_data_raw[0]);
-
     logic running;
     logic wait_wr;
     full_inst_t instruction;
     logic [InstAddrW-1:0] inst_ptr;
-    full_inst_t prog_mem[2**InstAddrW];
+    logic [$bits(full_inst_t)-1:0] prog_mem[2**InstAddrW];
     initial $readmemb("prog.dat", prog_mem);
 
     always_ff @(posedge clk) begin
@@ -38,7 +34,7 @@ module net_proc #(
         end else begin
             if (running && !wait_wr && instruction.proc_inst != FIN) begin
                 inst_ptr <= inst_ptr + 1;
-                instruction <= prog_mem[inst_ptr];
+                instruction <= full_inst_t'(prog_mem[inst_ptr]);
             end
         end
     end
@@ -111,7 +107,7 @@ module net_proc #(
         if (start) begin
             is_write_ppl <= 0;
             last_in_layer_ppl <= 0;
-            in_offset_neg <= conf.input_quant_offset;
+            in_offset_neg <= net_config::input_quant_offset;
         end else begin
             is_write_ppl <= {is_write_ppl[5:0], instruction.proc_inst == STORE && !wait_wr};
             last_in_layer_ppl <= {last_in_layer_ppl[5:0],
@@ -143,7 +139,7 @@ module net_proc #(
     ) i_data_mem (
         .clk(clk),
         .rst(ext_mem_rst),
-        .wdata(ext_mem_we ? (ext_mem_wdata + conf.input_quant_offset) : $unsigned(activated)),
+        .wdata(ext_mem_we ? (ext_mem_wdata + net_config::input_quant_offset) : $unsigned(activated)),
         .we(ext_mem_we | is_write_ppl[6]),
         .w_next_chunk((~ext_mem_we & last_in_layer_ppl[6]) | start),
         .rp_inc(instruction.mul_en && !wait_wr),

@@ -42,8 +42,3 @@ typedef struct packed {
     nonvec_inst_t proc_inst;
     u_proc_data_t proc_data;
 } full_inst_t;
-
-typedef struct packed {
-    // Quantization offset of NN inputs. Applied to incoming data and used in first layer.
-    logic signed [7:0] input_quant_offset;
-} config_t;
