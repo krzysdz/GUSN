@@ -1,8 +1,9 @@
 module top_qi8 (
-    input clk,
-    input rx,
-    input rst_btn,
-    output tx
+    input logic clk,
+    input logic rx,
+    input logic rst_btn,
+    output logic tx,
+    output logic [3:0] last_result
 );
     localparam int Rate = 921600;
 `ifdef CLK_F
@@ -11,6 +12,8 @@ module top_qi8 (
     localparam int ClkFreq = 100_000_000;
 `endif
     localparam int Delta = 64'd2**32 * 16 * Rate / ClkFreq;
+
+    initial last_result = 4'hF;
 
     logic reset_btn_r;
     logic [1:0] n_start;
@@ -26,7 +29,6 @@ module top_qi8 (
     logic byte_just_received_r;
 
     logic [3:0] result;
-    logic [3:0] result_r; // TODO: Show on 7seg/LEDs
     logic done;
     logic done_r;
     logic just_done_c;
@@ -44,6 +46,7 @@ module top_qi8 (
         if (global_reset) begin
             uart_scale_cnt <= 0;
             bytes_received <= 0;
+            last_result <= 4'hF;
         end else begin
             if (uart_rx_clk)
                 uart_scale_cnt <= uart_scale_cnt + 1;
@@ -60,7 +63,7 @@ module top_qi8 (
         byte_just_received_r <= byte_just_received_c;
         done_r <= done;
         n_start <= {n_start[0], 1'b1};
-        result_r <= result;
+        last_result <= result;
     end
 
     uart_rx i_rx(.clk(clk), .nRST(!global_reset), .uart_clk(uart_rx_clk), .rxd(rx_r), .ready(rx_byte_ready), .data(rx_data), .error());

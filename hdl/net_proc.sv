@@ -1,5 +1,4 @@
 `include "datatypes.svh"
-`include "net_config.svh"
 
 module net_proc #(
     parameter int MUL_WIDTH = 27,
@@ -23,6 +22,7 @@ module net_proc #(
     logic running;
     logic wait_wr;
     full_inst_t instruction;
+    full_inst_t instruction_tmp;
     logic [InstAddrW-1:0] inst_ptr;
     logic [$bits(full_inst_t)-1:0] prog_mem[2**InstAddrW];
     initial $readmemb("prog.dat", prog_mem);
@@ -34,7 +34,8 @@ module net_proc #(
         end else begin
             if (running && !wait_wr && instruction.proc_inst != FIN) begin
                 inst_ptr <= inst_ptr + 1;
-                instruction <= full_inst_t'(prog_mem[inst_ptr]);
+                instruction_tmp <= full_inst_t'(prog_mem[inst_ptr]);
+                instruction <= instruction_tmp;
             end
         end
     end

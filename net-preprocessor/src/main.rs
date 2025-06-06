@@ -464,7 +464,7 @@ fn var_to_lines(dtype: &str, name: &str, value: &str, comment: Option<&str>) -> 
     }
 }
 
-/// Write network config data "net_config.svh", with network-specific parameters.
+/// Write network config data "net_config.sv", with network-specific parameters.
 fn write_config(input_quant_offset: i8) {
     const PACKAGE_NAME: &'static str = "net_config";
     const INDENT: &'static str = "    ";
@@ -481,7 +481,7 @@ fn write_config(input_quant_offset: i8) {
         .collect::<Vec<String>>()
         .join("\n");
     let config_package = format!("package {};\n{}\nendpackage\n", PACKAGE_NAME, config_data);
-    fs::write("../hdl/net_config.svh", config_package).unwrap();
+    fs::write("../hdl/net_config.sv", config_package).unwrap();
 }
 
 fn main() {
