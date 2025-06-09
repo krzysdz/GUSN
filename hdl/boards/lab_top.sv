@@ -8,7 +8,7 @@ module lab_top (
     logic [3:0] last_result;
     logic fast_clk;
 
-    top_qi8 i_top(.clk(fast_clk), .rx(rx), .rst_btn(rst_btn), .tx(tx), .last_result(last_result));
+    top_qi8 i_top(.clk(fast_clk), .rx(rx), .rst_btn(!rst_btn), .tx(tx), .last_result(last_result));
     hex_disp i_hex(.data(last_result), .seg(segments));
 
     altera_pll #(
