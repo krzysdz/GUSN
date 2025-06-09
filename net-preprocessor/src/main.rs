@@ -457,7 +457,7 @@ fn check_layer_acc_max(layer: &FullyConnectedLayer) {
 }
 
 fn var_to_lines(dtype: &str, name: &str, value: &str, comment: Option<&str>) -> Vec<String> {
-    let var_line = format!("{} {} = {};", dtype, name, value);
+    let var_line = format!("localparam {} {} = {};", dtype, name, value);
     match comment {
         Some(c) => vec![format!("// {}", c), var_line],
         None => vec![var_line],

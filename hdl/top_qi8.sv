@@ -16,7 +16,7 @@ module top_qi8 (
     initial last_result = 4'hF;
 
     logic reset_btn_r;
-    logic [1:0] n_start;
+    logic [1:0] n_start = 2'b00;
     logic global_reset;
     assign global_reset = reset_btn_r || n_start == 2'b01;
 

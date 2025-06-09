@@ -27,10 +27,17 @@ module net_proc #(
     logic [$bits(full_inst_t)-1:0] prog_mem[2**InstAddrW];
     initial $readmemb("prog.dat", prog_mem);
 
-    always_ff @(posedge clk) begin
+`ifdef RAM_ACLR
+    // This still does not have registered output in M10K, but at least uses memory blocks, unlike version with sync reset
+    always_ff @(posedge clk, posedge start)
+`else
+    always_ff @(posedge clk)
+`endif
+    begin
         if (start) begin
             inst_ptr <= 0;
             instruction <= '{1'b0, 1'b0, {27*8{1'b0}}, 1'b0, 1'b0, NOP, 15'd0};
+            instruction_tmp <= '{1'b0, 1'b0, {27*8{1'b0}}, 1'b0, 1'b0, NOP, 15'd0};
         end else begin
             if (running && !wait_wr && instruction.proc_inst != FIN) begin
                 inst_ptr <= inst_ptr + 1;
@@ -43,6 +50,26 @@ module net_proc #(
         if (start || ext_mem_rst || instruction.proc_inst == FIN)
             running <= start;
     end
+
+    oof_d_t oof_d;
+    mul_d_t mul_d;
+    shr_d_t shr_d;
+    act_d_t act_d;
+    st_d_t st_d;
+
+`ifndef QUARTUS
+    assign oof_d = instruction.proc_data.oof_d;
+    assign mul_d = instruction.proc_data.mul_d;
+    assign shr_d = instruction.proc_data.shr_d;
+    assign act_d = instruction.proc_data.act_d;
+    assign st_d  = instruction.proc_data.st_d;
+`else
+    assign oof_d = oof_d_t'(instruction.proc_data);
+    assign mul_d = mul_d_t'(instruction.proc_data);
+    assign shr_d = shr_d_t'(instruction.proc_data);
+    assign act_d = act_d_t'(instruction.proc_data);
+    assign st_d  = st_d_t'(instruction.proc_data);
+`endif
 
     logic signed [7:0] in_offset_neg;
     // Parameters set by instructions
@@ -58,6 +85,7 @@ module net_proc #(
     logic signed [SingleMacW-1:0] mac_outs[27];
     // Final neuron processing pipeline
     logic signed [AccAllW-1:0] mac_sum; // this is already after 2 steps
+    logic signed [AccAllW:0] sum_preadded_bias;
     logic signed [45:0] offset_rd;
     logic signed [PreShrW-1:0] mul_no_shr;
     logic signed [46:0] mul_w_off_rd;
@@ -78,14 +106,14 @@ module net_proc #(
             act_min <= 0;
         end else if (running && !wait_wr) begin
             unique case (instruction.proc_inst)
-                SET_OUT_OFFSET: out_offset <= instruction.proc_data.oof_d.out_offset;
-                SET_MUL: multiplier <= instruction.proc_data.mul_d.mul;
+                SET_OUT_OFFSET: out_offset <= oof_d.out_offset;
+                SET_MUL: multiplier <= mul_d.mul;
                 SET_SHR: begin
-                    assert (instruction.proc_data.shr_d.shift <= 38)
+                    assert (shr_d.shift <= 38)
                         else $error("shift outside [0, 38] range");
-                    shift <= instruction.proc_data.shr_d.shift;
+                    shift <= shr_d.shift;
                 end
-                SET_MIN: act_min <= instruction.proc_data.act_d.act_min;
+                SET_MIN: act_min <= act_d.act_min;
                 default: ;
             endcase
         end
@@ -104,6 +132,7 @@ module net_proc #(
         offset_rd <= {{38{out_offset[7]}}, out_offset, 1'b1} << shift;
     end
     // Neuron finalizing pipeline
+    assign sum_preadded_bias = (mac_sum + bias_ppl[3]); // Quartus requires this as a separate net, or the preadder won't be inferred, because inputs are resized to multiplier output
     always_ff @(posedge clk) begin
         if (start) begin
             is_write_ppl <= 0;
@@ -112,14 +141,14 @@ module net_proc #(
         end else begin
             is_write_ppl <= {is_write_ppl[6:0], instruction.proc_inst == STORE && !wait_wr};
             last_in_layer_ppl <= {last_in_layer_ppl[6:0],
-                                (instruction.proc_inst == STORE && !wait_wr && instruction.proc_data.st_d.last_in_layer)};
+                                (instruction.proc_inst == STORE && !wait_wr && st_d.last_in_layer)};
             if (last_in_layer_ppl[7]) begin
                 in_offset_neg <= out_offset;
             end
         end
         for (int n = 3; n > 0; n--) bias_ppl[n] <= bias_ppl[n-1];
-        bias_ppl[0] <= instruction.proc_data.st_d.bias;
-        mul_no_shr <= (mac_sum + bias_ppl[3]) * $signed({1'b0, multiplier});
+        bias_ppl[0] <= st_d.bias;
+        mul_no_shr <= sum_preadded_bias * $signed({1'b0, multiplier});
         mul_w_off_rd <= mul_no_shr + offset_rd;
         mul_shifted <= $signed(mul_w_off_rd[46:1]) >>> shift;
 `ifdef SIM_ONLY
@@ -180,12 +209,9 @@ module net_proc #(
         .sum(mac_sum)
     );
 
-    typedef logic signed [7:0] t_mem_10_num [9:0];
     typedef logic signed [7:0] t_10_num [10];
-    t_mem_10_num first_10_unpacked;
     t_10_num first_10_ok_order;
-    assign first_10_unpacked = t_mem_10_num'(mem_data[9:0]);
-    assign first_10_ok_order = {<<8{first_10_unpacked}};
+    always_comb for (int i = 0; i < 10; ++i) first_10_ok_order[i] = mem_data[i];
     max_idx10 #(
         .WIDTH(8)
     ) i_max_idx (

@@ -1,4 +1,4 @@
-module own_top (
+module lab_top (
     input logic clk,
     input logic rx,
     input logic rst_btn,

@@ -19,7 +19,7 @@ module sdp_mem #(
     logic [$clog2(NUM_CHUNKS)-1:0] wp_chunk;
     logic [READ_WIDTH_MUL-1:0] wp_byte;
 
-`ifndef ALTERA
+`ifndef QUARTUS
     logic [READ_WIDTH_MUL*WRITE_WIDTH-1:0] data[NUM_CHUNKS];
 
     genvar i;

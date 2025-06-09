@@ -57,7 +57,7 @@ module max_idx10 #(
         in3_a_d = 0;
         in3_b_n = 0;
         in3_b_d = 0;
-        unique0 case (state)
+        unique case (state)
             S1_FIRST4 : begin
                 in1_a_n = inputs_r[0];
                 in1_a_d = 4'd0;
@@ -102,6 +102,7 @@ module max_idx10 #(
                 in1_b_n = tmp_results[1];
                 in1_b_d = tmp_idx[1];
             end
+            default: ;
         endcase
     end
 

@@ -22,9 +22,9 @@ set_property -dict {PACKAGE_PIN B4 IOSTANDARD LVCMOS25} [get_ports {d0_segments[
 set_property -dict {PACKAGE_PIN E6 IOSTANDARD LVCMOS25} [get_ports {d0_segments[0]}]
 
 # Ignore async paths in timing analysis
-set_false_path -to [get_ports rx]
+set_false_path -from [get_ports rx]
+set_false_path -from [get_ports rst_btn]
 set_false_path -to [get_ports tx]
-set_false_path -to [get_ports rst_btn]
 set_false_path -to [get_ports {d0_anodes*}]
 set_false_path -to [get_ports {d0_segments*}]
 
