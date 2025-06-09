@@ -57,6 +57,7 @@ set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005
+
 set_global_assignment -name VERILOG_MACRO "QUARTUS=<None>"
 set_global_assignment -name VERILOG_MACRO "RAM_ACLR=<None>"
 
@@ -80,6 +81,34 @@ set_global_assignment -name SYSTEMVERILOG_FILE ../hdl/fp_add.sv
 set_global_assignment -name SYSTEMVERILOG_FILE ../hdl/adder_tree3.sv
 set_global_assignment -name SYSTEMVERILOG_FILE dsp_mul_cyclonev.sv
 set_global_assignment -name SYSTEMVERILOG_FILE reg_wrap.sv
+set_global_assignment -name SDC_FILE constraints.sdc
+
+# rx - GPIO_0[0]
+# tx - GPIO_0[1]
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rst_btn
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rx
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to tx
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to segments[6]
+set_location_assignment PIN_AF14 -to clk
+set_location_assignment PIN_Y16 -to rst_btn
+set_location_assignment PIN_AC18 -to rx
+set_location_assignment PIN_Y17 -to tx
+set_location_assignment PIN_AE26 -to segments[0]
+set_location_assignment PIN_AE27 -to segments[1]
+set_location_assignment PIN_AE28 -to segments[2]
+set_location_assignment PIN_AG27 -to segments[3]
+set_location_assignment PIN_AF28 -to segments[4]
+set_location_assignment PIN_AG28 -to segments[5]
+set_location_assignment PIN_AH28 -to segments[6]
+
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
