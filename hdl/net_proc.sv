@@ -165,7 +165,7 @@ module net_proc #(
     sdp_mem #(
         .WRITE_WIDTH(8),
         .READ_WIDTH_MUL(27),
-        .NUM_CHUNKS(35)
+        .NUM_CHUNKS(NUM_CHUNKS)
     ) i_data_mem (
         .clk(clk),
         .rst(ext_mem_rst),
